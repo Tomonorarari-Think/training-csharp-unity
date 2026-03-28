@@ -1,5 +1,6 @@
 // 対応章：04章「コレクション・LINQ」
 // 演習内容：List・Dictionary の基本操作と LINQ のクエリ記述を練習します
+// 実行方法：01_csharp/how-to-run.md を参照してください
 
 using System;
 using System.Collections.Generic;
