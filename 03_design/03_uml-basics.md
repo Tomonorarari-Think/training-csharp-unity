@@ -235,6 +235,80 @@ StageManager o-- Coin
 
 ---
 
+### 2-5. Mermaid でクラス図を書く
+
+Mermaid は、Markdown のコードブロック内に記述するだけで図がレンダリングされる記法です。
+**GitHub の Markdown（README.md 等）では Mermaid がネイティブにレンダリングされる**ため、
+このリポジトリ上でそのまま図として表示されます。
+
+| 記法 | 向いている場面 |
+|---|---|
+| **Mermaid** | GitHub 上で表示したい・リポジトリのドキュメント内に埋め込みたい |
+| **PlantUML** | より細かい表現が必要・ローカルツールで管理したい |
+
+以下のコードを README.md や design-template.md に貼り付けると、
+GitHub 上で前章のクラス図が直接表示されます。
+
+```mermaid
+classDiagram
+  class EnemyBase {
+    <<abstract>>
+    #int hp
+    #float speed
+    +Move()* void
+    +TakeDamage() void
+  }
+
+  class WalkingEnemy {
+    +Move() void
+  }
+
+  class FlyingEnemy {
+    +Move() void
+  }
+
+  class ItemBase {
+    <<abstract>>
+    +OnPickup()* void
+  }
+
+  class PowerUpItem {
+    +OnPickup() void
+  }
+
+  class IDamageable {
+    <<interface>>
+    +TakeDamage() void
+  }
+
+  class PlayerCharacter {
+    -int hp
+    -float speed
+    +Move() void
+    +Jump() void
+    +TakeDamage() void
+  }
+
+  class StageManager {
+    -int score
+    +OnStageClear() void
+  }
+
+  class Coin {
+    -int value
+    +OnCollect() void
+  }
+
+  EnemyBase <|-- WalkingEnemy
+  EnemyBase <|-- FlyingEnemy
+  ItemBase <|-- PowerUpItem
+  IDamageable <|.. PlayerCharacter
+  StageManager o-- EnemyBase
+  StageManager o-- Coin
+```
+
+---
+
 ## 3. シーケンス図
 
 ### 3-1. シーケンス図とは
@@ -315,7 +389,43 @@ Enemy -> Bullet : Destroy()
 
 ---
 
+### 3-5. Mermaid でシーケンス図を書く
+
+以下のコードを Markdown ファイルに貼り付けると、GitHub 上でシーケンス図が直接表示されます。
+
+```mermaid
+sequenceDiagram
+  participant Bullet
+  participant Enemy
+  participant GameManager
+
+  Bullet->>Enemy: OnTriggerEnter2D()
+  Enemy->>GameManager: TakeDamage()
+  GameManager->>GameManager: AddScore()
+  Enemy->>Enemy: Destroy()
+  Bullet->>Bullet: Destroy()
+```
+
+PlantUML と比べた Mermaid の特徴は以下のとおりです。
+
+- コードブロック（` ```mermaid `）で囲むだけで使えます。
+- GitHub・GitLab・Notion 等で直接レンダリングされます。
+- PlantUML より記法がシンプルです。
+- 複雑な図の表現（細かいスタイル調整など）は PlantUML の方が向いている場合もあります。
+
+---
+
 ## 4. よくあるハマりどころ
+
+### 図の記法の使い分け
+
+| 記法 | 特徴 | 向いている場面 |
+|---|---|---|
+| **テキストアート** | ツール不要 | 簡単なラフ・コメント内 |
+| **Mermaid** | GitHub で直接表示される | リポジトリのドキュメント内 |
+| **PlantUML** | 高機能・細かい表現が可能 | 本格的な設計書・ローカル管理 |
+
+---
 
 **クラス図を完璧に描こうとして時間がかかりすぎる**
 
@@ -352,5 +462,8 @@ PlantUML コードとして貼り付けることを推奨します。
 
 - [PlantUML 公式](https://plantuml.com/ja/)
 - [PlantUML オンラインエディタ](https://www.plantuml.com/plantuml/uml/)
+- [Mermaid 公式](https://mermaid.js.org/)
+- [Mermaid Live Editor（ブラウザで試せる）](https://mermaid.live/)
+- [GitHub の Mermaid サポートについて](https://github.blog/developer-skills/github/include-diagrams-markdown-files-mermaid/)
 - [03_design/02_action-game-class-design.md](02_action-game-class-design.md) — クラス設計ワーク（前章）
 - [04_space-shooter/design-template.md](../04_space-shooter/design-template.md) — 設計書テンプレート（次の活用先）
