@@ -70,3 +70,18 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/
+
+# training-project サブフォルダ用（パスプレフィックス付き）
+training-project/[Ll]ibrary/
+training-project/[Tt]emp/
+training-project/[Oo]bj/
+training-project/[Bb]uild/
+training-project/[Bb]uilds/
+training-project/[Ll]ogs/
+training-project/[Uu]ser[Ss]ettings/
+training-project/*.suo
+training-project/*.user
+training-project/*.userosscache
+training-project/*.sln
+training-project/*.csproj
+training-project/.vs/
