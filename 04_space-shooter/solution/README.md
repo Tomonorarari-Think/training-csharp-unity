@@ -167,3 +167,18 @@ sequenceDiagram
 - **`GameManager` を Singleton にした理由：** スコアや敵の残数・ゲームオーバー状態は `PlayerController`・`EnemyController`・`EnemySpawner` など複数のクラスから参照される共通状態であるため、Singleton で一元管理しました。
 
 - **`EnemySpawner` を分離した理由：** 敵の生成処理を `GameManager` に持たせると、ゲーム進行管理と生成処理の2つの責任を持つことになります（単一責任の原則の違反）。`EnemySpawner` として分離することで、ウェーブ管理の拡張も容易になります。
+
+- **プレイヤーの削除を GameManager で行う理由：**
+  HP が 0 になったとき PlayerController 側で
+  `Destroy(gameObject)` を呼ぶ実装も動作するが、
+  「自分自身を削除する」という責務が
+  PlayerController に混在することになる。
+  GameManager にプレイヤーの削除を委譲することで、
+  PlayerController は「HP 管理と通知」のみを担い、
+  GameManager は「ゲーム全体の状態管理」を担う
+  単一責任の原則に沿った設計になる。
+  実装の過程で最初に PlayerController 側で
+  `Destroy(gameObject)` を書いたが、
+  設計を見直して GameManager に移した。
+  このような「実装してから設計を改善する」プロセスは
+  実務でも自然に起こり得ることである。

@@ -153,25 +153,52 @@ namespace SpaceShooter
         // -----------------------------------------------------------------------
 
         /// <summary>
-        /// ゲームオーバー処理。ゲームオーバー UI を表示し
-        /// reloadDelay 秒後にシーンをリロードする。
-        /// isGameOver フラグで二重呼び出しを防ぐ。
+        /// ゲームオーバー処理を実行します。
+        /// プレイヤーオブジェクトを削除し
+        /// 残存する敵の弾をすべて削除した後
+        /// ゲームオーバーUIを表示します。
+        /// プレイヤーの削除をここで行うことで
+        /// ゲームオーバー後の入力・射撃を無効化します。
+        /// （単一責任の原則：プレイヤーの生存管理を
+        ///   GameManager に集約する）
         /// </summary>
         public void OnGameOver()
         {
-            if (isGameOver) return; // すでにゲームオーバー処理済みなら無視する
-
+            if (isGameOver) return; // 二重呼び出し防止
             isGameOver = true;
+
             Debug.Log("ゲームオーバー");
 
-            if (gameOverPanel != null)
-            {
-                gameOverPanel.SetActive(true);
-            }
+            // プレイヤーを削除してゲームオーバー後の
+            // 入力・射撃を無効化する
+            // PlayerController ではなく GameManager が
+            // 削除の責任を持つ（単一責任の原則）
+            GameObject player = GameObject.FindWithTag("Player");
+            if (player != null) Destroy(player);
 
-            // reloadDelay 秒後にシーンをリロードする
-            // Invoke は MonoBehaviour の遅延実行メソッド
-            Invoke(nameof(ReloadScene), reloadDelay);
+            // 残存する敵の弾をすべて削除して
+            // 画面をクリーンにする
+            GameObject[] enemyBullets =
+                GameObject.FindGameObjectsWithTag("EnemyBullet");
+            foreach (var bullet in enemyBullets)
+                Destroy(bullet);
+
+            // ゲームオーバー UI を表示する
+            if (gameOverPanel != null)
+                gameOverPanel.SetActive(true);
+
+            // 3秒後にシーンをリロードする
+            StartCoroutine(ReloadSceneAfterDelay(reloadDelay));
+        }
+
+        /// <summary>
+        /// 指定秒数後にシーンをリロードするコルーチンです。
+        /// </summary>
+        /// <param name="delay">待機秒数</param>
+        private System.Collections.IEnumerator ReloadSceneAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         /// <summary>
@@ -185,16 +212,6 @@ namespace SpaceShooter
             {
                 stageClearPanel.SetActive(true);
             }
-        }
-
-        /// <summary>
-        /// 現在のシーンをリロードする。
-        /// SceneManager.LoadScene を使用するには
-        /// using UnityEngine.SceneManagement が必要。
-        /// </summary>
-        private void ReloadScene()
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 }

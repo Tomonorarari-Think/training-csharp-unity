@@ -42,6 +42,7 @@ namespace SpaceShooter
 
         private Rigidbody2D rb;
         private float       fireTimer;
+        private float       horizontalInput;
 
         // -----------------------------------------------------------------------
         // ライフサイクル
@@ -67,10 +68,13 @@ namespace SpaceShooter
         /// 毎フレームの入力取得と発射タイマーの更新。
         /// ⚠️ 入力取得は必ず Update で行う。
         /// FixedUpdate で GetAxis を呼ぶと物理更新タイミングとずれ、入力が抜ける場合がある。
+        /// Update で取得した値をフィールドに保存し、FixedUpdate で参照する。
         /// （02_unity/03_physics-input.md §4-4 参照）
         /// </summary>
         private void Update()
         {
+            horizontalInput = Input.GetAxis("Horizontal");
+
             fireTimer += Time.deltaTime;
 
             // スペースキーを押している間、発射間隔ごとに弾を発射する
@@ -85,12 +89,12 @@ namespace SpaceShooter
         /// 物理演算を使った移動処理。Rigidbody2D の操作は FixedUpdate で行う。
         /// ⚠️ Transform.position を直接変更すると物理演算と競合する。
         /// MovePosition を使うことで物理エンジンが衝突を正しく処理できる。
+        /// 入力値は Update で取得済みの horizontalInput を使用する。
         /// （02_unity/03_physics-input.md §2 参照）
         /// </summary>
         private void FixedUpdate()
         {
-            float horizontal = Input.GetAxis("Horizontal");
-            Vector2 movement = new Vector2(horizontal, 0.0f);
+            Vector2 movement = new Vector2(horizontalInput, 0.0f);
             rb.MovePosition(rb.position + movement * speed * Time.fixedDeltaTime);
         }
 
@@ -129,11 +133,13 @@ namespace SpaceShooter
         // -----------------------------------------------------------------------
 
         /// <summary>
-        /// ダメージを受ける。HP が 0 以下になるとゲームオーバーを通知する。
-        /// GameManager への通知は Singleton 経由で行う。
-        /// （03_design/04_design-patterns.md Singleton パターン参照）
+        /// ダメージを受けてHPを減らします。
+        /// HPが0以下になった場合はゲームオーバー処理を
+        /// GameManager に通知します。
+        /// プレイヤーオブジェクトの削除は
+        /// GameManager.OnGameOver() が責任を持ちます。
         /// </summary>
-        /// <param name="amount">受けるダメージ量。</param>
+        /// <param name="amount">受けるダメージ量</param>
         public void TakeDamage(int amount)
         {
             hp -= amount;
@@ -141,6 +147,9 @@ namespace SpaceShooter
 
             if (hp <= 0)
             {
+                // HP が 0 以下になったことを GameManager に通知する
+                // プレイヤーの削除は GameManager 側で行う
+                // （単一責任の原則：削除の判断を GameManager に委譲）
                 GameManager.Instance.OnGameOver();
             }
         }
