@@ -241,7 +241,14 @@ public class StageManager : MonoBehaviour
 
 ### 3-2. 関係の整理表
 
-> **問い：** 以下の空欄を自分で埋めてみましょう。正解は1つではありません。
+> **問い：** 上で設計した各クラスの間にどんな関係があるか、自分で整理してみましょう。
+> 「WalkingEnemy と EnemyBase はどんな関係？」「StageManager は何を持っている？」
+> など、3-1 の関係の種類を参考に考えてみてください。正解は1つではありません。
+
+---
+
+<details>
+<summary>解答例を見る</summary>
 
 | クラスA | 関係 | クラスB | 説明 |
 |---|---|---|---|
@@ -251,6 +258,8 @@ public class StageManager : MonoBehaviour
 | `StageManager` | has-a | `Coin`（リスト） | ステージ上のコインを管理する |
 | `StageManager` | has-a | `EnemyBase`（リスト） | ステージ上の敵を管理する |
 | `PlayerCharacter` | 依存 | `ItemBase` | アイテム取得時に `OnPickup` を呼ぶ |
+
+</details>
 
 ---
 
