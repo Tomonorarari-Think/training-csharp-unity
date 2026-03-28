@@ -1,0 +1,23 @@
+{
+  "name": "com.your-organization.training-csharp-unity",
+  "version": "0.1.0",
+  "displayName": "C# / Unity 研修パッケージ",
+  "description": "C#・Unity・設計思想を学ぶための研修用スクリプトパッケージです。新卒研修および独学者向けのサンプルスクリプトが含まれています。.unitypackage 形式での配布も GitHub Releases で提供しています。",
+  "unity": "2022.3",
+  "unityRelease": "0f1",
+  "documentationUrl": "https://github.com/[ユーザー名]/training-csharp-unity",
+  "changelogUrl": "https://github.com/[ユーザー名]/training-csharp-unity/blob/main/CHANGELOG.md",
+  "license": "MIT",
+  "keywords": [
+    "csharp",
+    "unity",
+    "training",
+    "design-patterns",
+    "solid"
+  ],
+  "author": {
+    "name": "Your Name",
+    "email": "your@email.com",
+    "url": "https://github.com/[ユーザー名]"
+  }
+}
