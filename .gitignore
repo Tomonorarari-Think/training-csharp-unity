@@ -85,3 +85,10 @@ training-project/*.userosscache
 training-project/*.sln
 training-project/*.csproj
 training-project/.vs/
+
+# answer/space-shooter ブランチでは
+# training-project を追跡対象にする
+# （このブランチでのみ有効）
+!training-project/Assets/
+!training-project/Packages/
+!training-project/ProjectSettings/
