@@ -85,6 +85,7 @@ training-project/*.userosscache
 training-project/*.sln
 training-project/*.csproj
 training-project/.vs/
+training-project/ProjectSettings/AI.Assistant/
 
 # answer/space-shooter ブランチでは
 # training-project を追跡対象にする
