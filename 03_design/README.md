@@ -3,7 +3,7 @@
 ## このフォルダで学べること
 
 - SOLID 原則（オブジェクト指向設計の5つの原則）
-- クラス設計の実践（マリオを題材にしたワーク）
+- クラス設計の実践（横スクロールアクションゲームを題材にしたワーク）
 - UML（クラス図・シーケンス図）の読み書き
 - デザインパターン（Singleton・Observer・Command 等）
 
@@ -26,7 +26,7 @@
 以下の順番で学習することを推奨します。
 
 1. [01_solid-principles.md](01_solid-principles.md) — SOLID 原則
-2. [02_mario-class-design.md](02_mario-class-design.md) — クラス設計ワーク（マリオ）
+2. [02_action-game-class-design.md](02_action-game-class-design.md) — クラス設計ワーク（横スクロールアクションゲーム）
 3. [03_uml-basics.md](03_uml-basics.md) — UML 基礎
 4. [04_design-patterns.md](04_design-patterns.md) — デザインパターン
 
