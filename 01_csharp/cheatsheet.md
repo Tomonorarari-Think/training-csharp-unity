@@ -10,7 +10,8 @@
 [6. コレクション](#6-コレクション) ／
 [7. LINQ](#7-linq-クイックリファレンス) ／
 [8. Unity 関連記法](#8-よく使う-unity-関連の-c-記法) ／
-[9. Visual Studio ショートカット](#9-よく使うショートカットvisual-studio)
+[9. Visual Studio ショートカット](#9-よく使うショートカットvisual-studio) ／
+[10. 例外処理](#10-例外処理)
 
 ---
 
@@ -500,6 +501,55 @@ if (enemy != null)
 | `Ctrl+K, Ctrl+C` | 選択行をコメントアウト |
 | `Ctrl+K, Ctrl+U` | 選択行のコメント解除 |
 | `Ctrl+Shift+B` | ビルド |
+
+---
+
+## 10. 例外処理
+
+### try-catch-finally の基本形
+
+```csharp
+try
+{
+    // 例外が発生する可能性のある処理
+}
+catch (FormatException e)     // 具体的な例外を先に書く
+{
+    Debug.LogError(e.Message);
+}
+catch (Exception e)           // その他すべての例外（最後）
+{
+    Debug.LogException(e);
+}
+finally
+{
+    // 例外の有無に関わらず必ず実行（リソース解放など）
+}
+```
+
+### throw の書き方
+
+```csharp
+// 新しい例外を送出する
+throw new ArgumentException("引数が不正です");
+
+// catch した例外を再送出する（スタックトレースを保持）
+throw;   // OK
+// throw e; は NG（スタックトレースがリセットされる）
+```
+
+### よく使う例外クラス
+
+| 例外クラス | 発生する場面 |
+|---|---|
+| `NullReferenceException` | null のオブジェクトにアクセスした |
+| `IndexOutOfRangeException` | 配列の範囲外にアクセスした |
+| `ArgumentNullException` | null を渡してはいけない引数に null を渡した |
+| `ArgumentException` | 引数が不正な値だった |
+| `InvalidOperationException` | 無効な状態で操作が呼ばれた |
+| `DivideByZeroException` | 0 で除算した |
+| `FormatException` | `Parse` などで文字列形式が不正だった |
+| `IOException` | ファイルの読み書きで問題が発生した |
 
 ---
 
