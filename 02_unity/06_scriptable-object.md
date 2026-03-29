@@ -107,46 +107,47 @@ public class EnemyController : MonoBehaviour
 
 ---
 
-## 4. 🎮 スペースシューターでの使用例
+## 4. 🎮 スペースシューターへの適用例（発展）
 
-`04_space-shooter/` で実装した敵の種類ごとに ScriptableObject でデータを管理するとどうなるか、リファクタリング案として紹介します。
+現在の模範解答（`04_space-shooter/solution/`）では ScriptableObject を使用していません。
+まずは模範解答の構成で動くものを作ることを優先してください。
 
-### アセットの例
+動くものができた後の発展課題として、以下のリファクタリングを検討してみましょう。
 
-| ファイル名 | speed | hp | score |
-|---|---|---|---|
-| `NormalEnemyData.asset` | 2 | 1 | 100 |
-| `FastEnemyData.asset` | 4 | 1 | 200 |
-| `BossEnemyData.asset` | 1 | 10 | 1000 |
+### 敵のデータを ScriptableObject で管理する
 
-### リファクタリング前（パラメータをコードにハードコード）
+現在 `EnemyController` に直接書かれている `speed`・`hp`・`score` の値を ScriptableObject に切り出すと、スクリプトを変更せずにデータだけ追加・編集できるようになります。
 
 ```csharp
-// NG：敵の種類が増えるたびにコードを変更する必要がある
-public class EnemyController : MonoBehaviour
+[CreateAssetMenu(
+    fileName = "EnemyData",
+    menuName = "SpaceShooter/EnemyData")]
+public class EnemyData : ScriptableObject
 {
-    private float speed = 2f;  // ハードコード
-    private int   hp    = 1;
-    private int   score = 100;
+    public float speed;   // 移動速度
+    public int   hp;      // 体力
+    public int   score;   // 撃破スコア
 }
+
+// EnemyController 側での参照
+[SerializeField]
+private EnemyData enemyData;
 ```
 
-### リファクタリング後（ScriptableObject でデータを外部化）
+### この変更で何が嬉しいか
 
-```csharp
-// OK：データはアセットで管理、スクリプトは変更不要
-[SerializeField] private EnemyData enemyData;
+- 敵の種類が増えても `EnemyController` を修正不要
+- Inspector 上でデータを編集できる
+- データとロジックが分離されてコードが読みやすくなる
 
-void Start()
-{
-    speed = enemyData.speed;
-    hp    = enemyData.hp;
-}
-```
+### 発展課題として試してみましょう
 
-敵の種類が増えたときに **スクリプトを変更せずにアセットを追加するだけ** で対応できます。
+1. `EnemyData` ScriptableObject を作成する
+2. `EnemyController` に `[SerializeField] EnemyData` を追加する
+3. 既存の数値を ScriptableObject 経由に変更する
+4. 複数の `EnemyData` アセットを作って敵の種類を増やす
 
-→ [04_space-shooter/](../04_space-shooter/) の実装を参考に試してみてください。
+詰まった場合は [04_space-shooter/hints.md](../04_space-shooter/hints.md) を参照してください。
 
 ---
 
