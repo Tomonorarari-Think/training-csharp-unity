@@ -200,7 +200,120 @@ Object Pool パターンを検討してみましょう。
 
 ---
 
-## 4. それでも解決しない場合
+## 4. 発展課題（ScriptableObject）に関するヒント
+
+`02_unity/06_scriptable-object.md` で紹介した ScriptableObject リファクタリングに取り組む際のヒントです。
+
+---
+
+### EnemyData クラスをどこに作ればよいかわからない
+
+**ヒント1**
+
+`Assets/SpaceShooter/Scripts/` フォルダに `EnemyData.cs` を新規作成してください。
+`MonoBehaviour` ではなく `ScriptableObject` を継承する点に注意してください。
+
+**ヒント2**
+
+最小構成はこの形です。
+
+```csharp
+using UnityEngine;
+
+[CreateAssetMenu(
+    fileName = "EnemyData",
+    menuName = "SpaceShooter/EnemyData")]
+public class EnemyData : ScriptableObject
+{
+    public float speed;
+    public int   hp;
+    public int   score;
+    public float fireInterval;
+}
+```
+
+`[CreateAssetMenu]` を付けると、Project ウィンドウの右クリックメニュー
+**Create → SpaceShooter → EnemyData** からアセットを作成できます。
+
+---
+
+### EnemyBase に EnemyData を組み込む方法がわからない
+
+**ヒント1**
+
+`EnemyBase` に `[SerializeField] private EnemyData enemyData;` を追加して
+Inspector でアセットをアサインする設計が基本です。
+
+**ヒント2**
+
+`EnemyData` がアサインされているときだけ値を上書きするようにすると
+既存の Inspector 設定を壊さずに移行できます。
+
+```csharp
+protected virtual void Awake()
+{
+    if (enemyData != null)
+    {
+        speed        = enemyData.speed;
+        hp           = enemyData.hp;
+        fireInterval = enemyData.fireInterval;
+    }
+}
+```
+
+**ヒント3**
+
+スコアは現在 `EnemyBase.Die()` に `100` とハードコードされています。
+`EnemyData` に `score` フィールドを追加し、`Die()` の中で
+`GameManager.Instance.AddScore(scoreValue)` のように渡すには
+`Awake()` で `scoreValue` にコピーしておくと使いやすいです。
+
+---
+
+### ゲーム実行中に EnemyData の値を変えたらアセットが書き変わった
+
+`ScriptableObject` のフィールドを実行中に直接書き換えると
+エディタのアセットファイルに保存されてしまいます。
+
+**対処法：** ランタイムで変化する値（hp の減少など）は
+`MonoBehaviour` 側のフィールドに `Awake()` でコピーして管理してください。
+ScriptableObject は初期値の入れ物として使い、直接書き換えないようにしましょう。
+
+```csharp
+// NG：ScriptableObject のフィールドを直接変更する
+enemyData.hp -= damage;
+
+// OK：MonoBehaviour 側のフィールドを変更する
+hp -= damage; // hp は Awake() で enemyData.hp からコピーした値
+```
+
+---
+
+### 複数の EnemyData アセットをどう切り替えればよいかわからない
+
+**ヒント1**
+
+Prefab を敵の種類ごとに分けて、それぞれの Prefab の Inspector で
+異なる `EnemyData` アセットをアサインします。
+`EnemySpawner` では Prefab をリストで管理し、生成時に選択する設計が一般的です。
+
+**ヒント2**
+
+`EnemySpawner` に以下のように Prefab リストを持たせる形が参考になります。
+
+```csharp
+[SerializeField] private List<GameObject> enemyPrefabs;
+
+void SpawnEnemy()
+{
+    int index = Random.Range(0, enemyPrefabs.Count);
+    Instantiate(enemyPrefabs[index], spawnPosition, Quaternion.identity);
+}
+```
+
+---
+
+## 5. それでも解決しない場合
 
 上記のヒントを試しても解決しない場合は、[solution/](solution/) フォルダの模範解答を参照してください。
 
