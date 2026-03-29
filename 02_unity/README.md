@@ -19,6 +19,7 @@
 3. [03_physics-input.md](03_physics-input.md) — 物理演算・入力処理
 4. [04_debugging.md](04_debugging.md) — Visual Studio デバッグ
 5. [05_async.md](05_async.md) — 非同期処理（Awaitable・UniTask）
+6. [06_scriptable-object.md](06_scriptable-object.md) — ScriptableObject によるデータ管理
 
 ---
 
