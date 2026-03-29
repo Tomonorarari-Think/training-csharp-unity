@@ -11,7 +11,8 @@
 [7. LINQ](#7-linq-クイックリファレンス) ／
 [8. Unity 関連記法](#8-よく使う-unity-関連の-c-記法) ／
 [9. Visual Studio ショートカット](#9-よく使うショートカットvisual-studio) ／
-[10. 例外処理](#10-例外処理)
+[10. デリゲート・Action・Func・event](#10-デリゲートactionfuncevent) ／
+[11. 例外処理](#11-例外処理)
 
 ---
 
@@ -504,7 +505,52 @@ if (enemy != null)
 
 ---
 
-## 10. 例外処理
+## 10. デリゲート・Action・Func・event
+
+### Action / Func の型引数パターン
+
+```csharp
+// Action（戻り値なし）
+Action              act0 = () => { };             // 引数なし
+Action<int>         act1 = x => { };              // 引数1つ
+Action<int, string> act2 = (x, s) => { };         // 引数2つ
+
+// Func（戻り値あり。最後の型引数が戻り値）
+Func<int>           fn0 = () => 42;               // 引数なし・int を返す
+Func<int, bool>     fn1 = x => x > 0;            // int → bool
+Func<int, int, int> fn2 = (x, y) => x + y;       // int × 2 → int
+```
+
+### ラムダ式の書き方パターン
+
+```csharp
+Action greet        = () => Console.WriteLine("Hello");        // 引数なし
+Action<string> say  = name => Console.WriteLine(name);         // 引数1つ（括弧省略可）
+Action<int, int> op = (x, y) => Console.WriteLine(x + y);     // 引数2つ
+Func<int, bool> chk = x => x > 0;                             // 戻り値あり
+Func<int, string> classify = score =>                          // 複数行（ブロックラムダ）
+{
+    if (score >= 80) return "優";
+    return "可";
+};
+```
+
+### event の定義・購読・解除・発火
+
+```csharp
+// 発行者（Publisher）
+public event Action OnPlayerDied;               // event 宣言
+
+void Die() { OnPlayerDied?.Invoke(); }          // 発火（null チェック必須）
+
+// 購読者（Subscriber）—— OnEnable/OnDisable でセット管理
+void OnEnable()  { publisher.OnPlayerDied += HandleDied; }  // 購読
+void OnDisable() { publisher.OnPlayerDied -= HandleDied; }  // 解除（必須）
+```
+
+---
+
+## 11. 例外処理
 
 ### try-catch-finally の基本形
 
