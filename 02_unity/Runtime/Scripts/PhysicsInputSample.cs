@@ -20,7 +20,8 @@ namespace TrainingCsharpUnity
 
         // Update → FixedUpdate にフラグで渡す発射要求
         // ⚠️ Input.GetKeyDown を FixedUpdate に書くと入力が抜けるためフラグを使う（§4-4）
-        private bool fireRequested = false;
+        private bool    fireRequested = false;
+        private Vector2 moveInput;               // Update → FixedUpdate への移動入力キャッシュ
 
         // -----------------------------------------------------------------------
         // Awake：Rigidbody2D を Awake でキャッシュする（§2）
@@ -42,6 +43,9 @@ namespace TrainingCsharpUnity
         // -----------------------------------------------------------------------
         void Update()
         {
+            // --- 移動入力の取得（Update でキャッシュして FixedUpdate に渡す）---
+            moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
             // スペースキーを押した瞬間に発射フラグを立てる（Legacy Input Manager 使用）
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -56,13 +60,9 @@ namespace TrainingCsharpUnity
         // -----------------------------------------------------------------------
         void FixedUpdate()
         {
-            // 入力値を取得して力を加える
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical   = Input.GetAxis("Vertical");
-            Vector2 direction = new Vector2(horizontal, vertical);
-
             // AddForce で力を加えて移動する（物理演算に従って自然に加速する）
-            rb.AddForce(direction * moveForce);
+            // moveInput は Update でキャッシュ済み
+            rb.AddForce(moveInput * moveForce);
 
             // 発射フラグが立っていたら弾を発射する
             if (fireRequested)
@@ -79,7 +79,7 @@ namespace TrainingCsharpUnity
         // -----------------------------------------------------------------------
         void OnTriggerEnter2D(Collider2D other)
         {
-            // CompareTag を使う（== より推奨される理由：ガベージが発生しないため）
+            // CompareTag を使う（== より推奨：アロケーションなし・タイポ検出）
             if (other.CompareTag("Enemy"))
             {
                 Debug.Log($"敵「{other.gameObject.name}」と接触しました");
