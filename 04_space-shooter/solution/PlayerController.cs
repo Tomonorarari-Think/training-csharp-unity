@@ -161,8 +161,9 @@ namespace SpaceShooter
         /// <summary>
         /// Trigger に入ったオブジェクトを判定する。
         /// ⚠️ CompareTag は tag == "..." より推奨される。
-        ///    tag == "..." は毎回文字列を生成するためガベージが発生する。
-        ///    CompareTag はガベージを生成しない。
+        ///    理由1：.tag プロパティはアクセスのたびにネイティブから文字列をコピーするため
+        ///           アロケーションが発生する可能性がある。CompareTag はアロケーションなし。
+        ///    理由2：存在しないタグを指定した場合に実行時エラーで検出できる（タイポ防止）。
         /// </summary>
         /// <param name="other">衝突した Collider2D。</param>
         private void OnTriggerEnter2D(Collider2D other)
