@@ -367,31 +367,28 @@ Physics2D.IgnoreLayerCollision(
 Tag は GameObject に付けるラベルです。
 `gameObject.tag == "Enemy"` より `CompareTag("Enemy")` が推奨されます。
 
-#### CompareTag() を使う理由（正確な説明）
+#### CompareTag() を使う理由
 
-`gameObject.tag` プロパティを使った比較と
-`CompareTag()` を使った比較には
-以下の2つの重要な違いがあります。
+Unity 公式マニュアルでは CompareTag() について
+以下の2点を明示しています。
+（参照：https://docs.unity3d.com/Manual/class-GameObject.html）
 
-**理由1：ガベージアロケーションの回避**
+**理由1：メモリアロケーションが発生しない**
 
-`gameObject.tag == "Enemy"` と書いたとき
-問題があるのは `==` 演算子ではなく
-`.tag` プロパティのアクセス部分です。
-
-Unity の `.tag` プロパティはアクセスするたびに
-ネイティブ側から文字列を新しくコピーして返します。
-これによりヒープにアロケーションが発生し
-GC（ガベージコレクション）の負荷につながります。
-
-`CompareTag()` は内部でタグを整数IDに変換して
-比較するためアロケーションが発生しません。
+`CompareTag()` はメモリアロケーションを発生させません。
+一方 `gameObject.tag` プロパティは
+ネイティブ側から文字列を返す際に
+アロケーションが発生する可能性があると
+コミュニティの検証では報告されています。
+Unity 公式としての直接の言及はありませんが
+頻繁に呼ばれる処理（OnTriggerEnter2D 等）では
+`CompareTag()` を使うことが推奨されています。
 
 ```csharp
-// ❌ .tag プロパティのアクセスでアロケーションが発生する
+// ❌ .tag プロパティ経由の比較（非推奨）
 if (other.gameObject.tag == "Enemy") { }
 
-// ✅ アロケーションなし・推奨
+// ✅ CompareTag() を使う（推奨・アロケーションなし）
 if (other.CompareTag("Enemy")) { }
 ```
 
@@ -431,11 +428,11 @@ void OnTriggerEnter2D(Collider2D other)
 
 **まとめ（表形式）**
 
-| 方法 | ガベージ | タイポ検出 | 推奨度 |
+| 方法 | メモリ効率 | タイポ検出 | 推奨度 |
 |---|---|---|---|
-| `gameObject.tag ==` | あり | なし | ❌ |
-| `CompareTag(string)` | なし | あり | ✅ |
-| `CompareTag(TagHandle)` | なし | あり | ✅ Unity 6以降 |
+| `gameObject.tag ==` | アロケーションの可能性あり | なし | ❌ |
+| `CompareTag(string)` | アロケーションなし（公式明記） | あり | ✅ |
+| `CompareTag(TagHandle)` | アロケーションなし | あり | ✅ Unity 6以降 |
 
 🎮 Unity での使用例：OnTriggerEnter2D でタグを確認する
 
@@ -450,6 +447,7 @@ void OnTriggerEnter2D(Collider2D other)
 }
 ```
 
+- [Unity 公式マニュアル（GameObject クラス）](https://docs.unity3d.com/Manual/class-GameObject.html)
 - [Unity 公式 API：CompareTag](https://docs.unity3d.com/ScriptReference/Component.CompareTag.html)
 - [Unity 公式 API：TagHandle](https://docs.unity3d.com/ScriptReference/TagHandle.html)
 
@@ -480,7 +478,7 @@ void OnTriggerEnter2D(Collider2D other)
 
 ### tag の比較に == を使う
 
-→ `CompareTag()` を使う。`gameObject.tag` プロパティへのアクセスが毎回ネイティブから文字列をコピーするためアロケーションが発生する。また存在しないタグを指定したときのエラー検出もできない。
+→ `CompareTag()` を使う。`CompareTag()` はアロケーションなし（公式明記）・存在しないタグのタイポ検出という2つの利点がある。
 
 ---
 
