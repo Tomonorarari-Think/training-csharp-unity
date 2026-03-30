@@ -365,19 +365,77 @@ Physics2D.IgnoreLayerCollision(
 ### Tag
 
 Tag は GameObject に付けるラベルです。
-`gameObject.tag == "Enemy"` より `gameObject.CompareTag("Enemy")` が推奨されます。
+`gameObject.tag == "Enemy"` より `CompareTag("Enemy")` が推奨されます。
 
-**CompareTag が推奨される理由：**
-`== 演算子`はタグの文字列を毎回生成するためガベージが発生しますが、
-`CompareTag` は内部で最適化されているためパフォーマンスへの影響が少ないです。
+#### CompareTag() を使う理由（正確な説明）
+
+`gameObject.tag` プロパティを使った比較と
+`CompareTag()` を使った比較には
+以下の2つの重要な違いがあります。
+
+**理由1：ガベージアロケーションの回避**
+
+`gameObject.tag == "Enemy"` と書いたとき
+問題があるのは `==` 演算子ではなく
+`.tag` プロパティのアクセス部分です。
+
+Unity の `.tag` プロパティはアクセスするたびに
+ネイティブ側から文字列を新しくコピーして返します。
+これによりヒープにアロケーションが発生し
+GC（ガベージコレクション）の負荷につながります。
+
+`CompareTag()` は内部でタグを整数IDに変換して
+比較するためアロケーションが発生しません。
 
 ```csharp
-// 非推奨（ガベージが発生する）
+// ❌ .tag プロパティのアクセスでアロケーションが発生する
 if (other.gameObject.tag == "Enemy") { }
 
-// 推奨
-if (other.gameObject.CompareTag("Enemy")) { }
+// ✅ アロケーションなし・推奨
+if (other.CompareTag("Enemy")) { }
 ```
+
+**理由2：存在しないタグの早期検出**
+
+`CompareTag()` は指定したタグが
+Unity のタグ設定に存在しない場合
+実行時にコンソールへエラーを出力します。
+
+`==` による比較では存在しないタグを指定しても
+単に `false` が返るだけで気づきにくいです。
+タイポによるバグを早期に発見できる点も
+`CompareTag()` が推奨される理由のひとつです。
+
+**Unity 6 以降：TagHandle を使うさらに高速な方法**
+
+> ⚠️ **Unity 6 以降**
+> `TagHandle` を使うと `CompareTag(string)` より
+> さらに高速な比較ができます。
+> 同じタグを何度も比較する場合に有効です。
+
+```csharp
+private TagHandle _enemyTag;
+
+void OnEnable()
+{
+    // TagHandle を一度だけ取得してキャッシュする
+    _enemyTag = TagHandle.GetExistingTag("Enemy");
+}
+
+void OnTriggerEnter2D(Collider2D other)
+{
+    // string を渡すより高速
+    if (other.CompareTag(_enemyTag)) { }
+}
+```
+
+**まとめ（表形式）**
+
+| 方法 | ガベージ | タイポ検出 | 推奨度 |
+|---|---|---|---|
+| `gameObject.tag ==` | あり | なし | ❌ |
+| `CompareTag(string)` | なし | あり | ✅ |
+| `CompareTag(TagHandle)` | なし | あり | ✅ Unity 6以降 |
 
 🎮 Unity での使用例：OnTriggerEnter2D でタグを確認する
 
@@ -391,6 +449,9 @@ void OnTriggerEnter2D(Collider2D other)
     }
 }
 ```
+
+- [Unity 公式 API：CompareTag](https://docs.unity3d.com/ScriptReference/Component.CompareTag.html)
+- [Unity 公式 API：TagHandle](https://docs.unity3d.com/ScriptReference/TagHandle.html)
 
 ---
 
@@ -419,7 +480,7 @@ void OnTriggerEnter2D(Collider2D other)
 
 ### tag の比較に == を使う
 
-→ `CompareTag()` を使う。`==` による比較は毎回文字列オブジェクトが生成される。
+→ `CompareTag()` を使う。`gameObject.tag` プロパティへのアクセスが毎回ネイティブから文字列をコピーするためアロケーションが発生する。また存在しないタグを指定したときのエラー検出もできない。
 
 ---
 
