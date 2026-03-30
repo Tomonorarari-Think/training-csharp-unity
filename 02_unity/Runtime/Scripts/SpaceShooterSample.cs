@@ -26,6 +26,7 @@ namespace TrainingCsharpUnity
         private int         currentHp;
         private float       lastFireTime  = -999.0f; // 最後に発射した時刻（初回すぐ撃てるよう大きなマイナス値）
         private bool        fireRequested = false;   // Update → FixedUpdate への発射フラグ
+        private Vector2     moveInput;               // Update → FixedUpdate への移動入力キャッシュ
 
         // -----------------------------------------------------------------------
         // Awake：コンポーネントのキャッシュ（02_monobehaviour.md §3-1）
@@ -48,6 +49,11 @@ namespace TrainingCsharpUnity
         // -----------------------------------------------------------------------
         void Update()
         {
+            // --- 移動入力の取得（Update でキャッシュして FixedUpdate に渡す）---
+            float horizontal = Input.GetAxis("Horizontal");
+            float vertical   = Input.GetAxis("Vertical");
+            moveInput = new Vector2(horizontal, vertical).normalized;
+
             // スペースキーを押している間、発射間隔を超えていたら発射フラグを立てる
             // Input.GetKey（押し続けている間）を使うことで連射が可能
             if (Input.GetKey(KeyCode.Space))
@@ -68,14 +74,10 @@ namespace TrainingCsharpUnity
         // -----------------------------------------------------------------------
         void FixedUpdate()
         {
-            // --- 移動処理（Legacy Input Manager 使用）---
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical   = Input.GetAxis("Vertical");
-            Vector2 moveDir  = new Vector2(horizontal, vertical).normalized;
-
+            // --- 移動処理（Update でキャッシュした moveInput を使う）---
             // MovePosition で物理演算を考慮しながら移動する
             // Time.fixedDeltaTime を掛けることでフレームレートに依存しない移動量になる
-            rb.MovePosition(rb.position + moveDir * moveSpeed * Time.fixedDeltaTime);
+            rb.MovePosition(rb.position + moveInput * moveSpeed * Time.fixedDeltaTime);
 
             // --- 発射処理（Update からフラグで受け取る）---
             if (fireRequested)
@@ -111,7 +113,7 @@ namespace TrainingCsharpUnity
         // -----------------------------------------------------------------------
         void OnTriggerEnter2D(Collider2D other)
         {
-            // CompareTag を使う（== より推奨：ガベージが発生しないため）（§5）
+            // CompareTag を使う（== より推奨：アロケーションなし・タイポ検出）（§5）
             if (other.CompareTag("Enemy"))
             {
                 currentHp--;
